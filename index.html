@@ -29,6 +29,7 @@
       background-color: var(--light);
       color: var(--dark);
       line-height: 1.6;
+      font-family: 'Inter', 'Segoe UI', sans-serif;
     }
 
     header {
@@ -141,6 +142,11 @@
       padding-bottom: 0.5rem;
       border-bottom: 2px solid var(--light);
     }
+    .card:hover {
+      border-left-color: var(--secondary);
+      transform: translateY(-3px);
+      transition: 0.25s ease;
+    }
 
     .card {
       background-color: var(--white);
@@ -159,6 +165,15 @@
     .card p {
       color: var(--gray);
       margin-bottom: 0.5rem;
+    }
+
+    button, .tab {
+    transition: all 0.25s ease;
+    }
+
+    button:hover, .tab:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
     }
 
     .card .meta {
@@ -292,11 +307,16 @@
     }
 
     footer {
-      background-color: var(--dark);
+      background: linear-gradient(135deg, var(--primary-dark), #1a4731);
       color: var(--white);
       text-align: center;
-      padding: 2rem;
-      margin-top: 3rem;
+      padding: 2.5rem 1rem;
+      margin-top: 4rem;
+    }
+
+    footer p {
+      margin-bottom: 0.5rem;
+      opacity: 0.9;
     }
 
     .footer-content {
