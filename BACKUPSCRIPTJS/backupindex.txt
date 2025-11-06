@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DoaFácil - Conectando doadores e necessitados</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #2e8b57;
+      --primary-dark: #1e6b47;
+      --secondary: #ff7e5f;
+      --light: #f6f9f6;
+      --dark: #333;
+      --gray: #777;
+      --white: #fff;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--light);
+      color: var(--dark);
+      line-height: 1.6;
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+    }
+
+    .welcome-message {
+  background: linear-gradient(135deg, #2e8b57, #4caf7b);
+  color: #fff;
+  text-align: center;
+  padding: 2.5rem 1rem;
+  border-radius: 15px;
+  margin: 2rem auto;
+  max-width: 900px;
+  box-shadow: 0 4px 20px rgba(46, 139, 87, 0.25);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.welcome-message:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 25px rgba(46, 139, 87, 0.35);
+}
+
+.welcome-message h2 {
+  color: #fff; 
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.5px;
+}
+
+.welcome-message p {
+  font-size: 1.1rem;
+  opacity: 0.95;
+}
+
+
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: var(--white);
+      padding: 1rem 2rem;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+
+    .logo i {
+      font-size: 2rem;
+    }
+
+    nav {
+      display: flex;
+      gap: 1rem;
+    }
+
+    button {
+      padding: 0.7rem 1.5rem;
+      border: none;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background-color: var(--secondary);
+      color: var(--white);
+    }
+
+    .btn-primary:hover {
+      background-color: #ff6b4a;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      color: var(--white);
+      border: 2px solid var(--white);
+    }
+
+    .btn-secondary:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-success {
+      background-color: var(--primary);
+      color: var(--white);
+    }
+
+    .btn-success:hover {
+      background-color: var(--primary-dark);
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    section {
+      background-color: var(--white);
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+
+    h2 {
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--light);
+    }
+    .card:hover {
+      border-left-color: var(--secondary);
+      transform: translateY(-3px);
+      transition: 0.25s ease;
+    }
+
+    .card {
+      background-color: var(--white);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      border-left: 4px solid var(--primary);
+    }
+
+    .card h3 {
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .card p {
+      color: var(--gray);
+      margin-bottom: 0.5rem;
+    }
+
+    button, .tab {
+    transition: all 0.25s ease;
+    }
+
+    button:hover, .tab:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    }
+
+    .card .meta {
+      display: flex;
+      justify-content: space-between;
+      color: var(--gray);
+      font-size: 0.9rem;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--dark);
+    }
+
+    input, select {
+      padding: 0.8rem;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 1rem;
+      transition: border 0.3s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    #mapaSimulado {
+      height: 400px;
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .tab-container {
+      display: flex;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 1.5rem;
+    }
+
+    .tab {
+      padding: 0.8rem 1.5rem;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--gray);
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .tab.active {
+      color: var(--primary);
+      border-bottom: 3px solid var(--primary);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    #lista ul {
+      list-style: none;
+    }
+
+    #lista li {
+      padding: 1rem;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #lista li:last-child {
+      border-bottom: none;
+    }
+
+    .doacao-info {
+      flex: 1;
+    }
+
+    .doacao-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .action-btn {
+      background: none;
+      border: none;
+      color: var(--gray);
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 0.3rem;
+    }
+
+    .action-btn:hover {
+      color: var(--primary);
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .user-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    footer {
+      background: linear-gradient(135deg, var(--primary-dark), #1a4731);
+      color: var(--white);
+      text-align: center;
+      padding: 2.5rem 1rem;
+      margin-top: 4rem;
+    }
+
+    footer p {
+      margin-bottom: 0.5rem;
+      opacity: 0.9;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      margin: 2rem 0;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--secondary);
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--gray);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: var(--white);
+      border-radius: 10px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .close-modal {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--gray);
+    }
+
+    .auth-links {
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .auth-links a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .auth-links a:hover {
+      text-decoration: underline;
+    }
+
+    .welcome-message {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: var(--white);
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-container">
+      <div class="logo">
+        <i class="fas fa-hands-helping"></i>
+        <h1>DoaFácil</h1>
+      </div>
+      <nav>
+        <button class="btn-secondary" onclick="abrirModal('login')">
+          <i class="fas fa-sign-in-alt"></i> Entrar
+        </button>
+        <button class="btn-primary" onclick="abrirModal('cadastro')">
+          <i class="fas fa-user-plus"></i> Cadastrar
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="welcome-message">
+      <h2>Conectando doadores e necessitados</h2>
+      <p>Faça a diferença na sua comunidade através de doações de alimentos</p>
+    </div>
+
+    <div class="container">
+      <section id="mapa">
+        <h2><i class="fas fa-map-marker-alt"></i> Mapa de Doações</h2>
+        <div id="mapaSimulado"></div>
+      </section>
+
+      <section id="doacoes">
+        <div class="tab-container">
+          <div class="tab active" onclick="mudarAba(event, 'lista-doacoes')">Doações Disponíveis</div>
+          <div class="tab" onclick="mudarAba(event, 'minhas-doacoes')">Minhas Doações</div>
+        </div>
+
+        <div id="lista-doacoes" class="tab-content active">
+          <h3>Doações Recentes</h3>
+          <ul id="lista-doacoes-disponiveis">
+            <!-- Doações serão carregadas aqui -->
+          </ul>
+        </div>
+
+        <div id="minhas-doacoes" class="tab-content">
+          <h3>Minhas Doações</h3>
+          <ul id="minhas-doacoes-lista">
+            <!-- Minhas doações serão carregadas aqui -->
+          </ul>
+        </div>
+      </section>
+    </div>
+
+    <div class="stats">
+      <div class="stat-item">
+        <div class="stat-number" id="total-doacoes">0</div>
+        <div class="stat-label">Doações Realizadas</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" id="pessoas-beneficiadas">0</div>
+        <div class="stat-label">Pessoas Beneficiadas</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" id="alimentos-doados">0</div>
+        <div class="stat-label">Alimentos Doados</div>
+      </div>
+    </div>
+
+    <button class="btn-success" onclick="abrirFormularioDoacao()" style="margin: 2rem auto; display: block;">
+      <i class="fas fa-plus-circle"></i> Nova Doação
+    </button>
+  </main>
+
+  <!-- Modal de Cadastro -->
+  <div id="modal-cadastro" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Cadastrar-se</h2>
+        <button class="close-modal" onclick="fecharModal('cadastro')">&times;</button>
+      </div>
+      <form id="form-cadastro">
+        <div class="form-group">
+          <label for="nome-completo">Nome Completo</label>
+          <input type="text" id="nome-completo" placeholder="Seu nome completo" required>
+        </div>
+        <div class="form-group">
+          <label for="email-cadastro">E-mail</label>
+          <input type="email" id="email-cadastro" placeholder="seu@email.com" required>
+        </div>
+        <div class="form-group">
+          <label for="senha-cadastro">Senha</label>
+          <input type="password" id="senha-cadastro" placeholder="Crie uma senha" required>
+        </div>
+        <div class="form-group">
+          <label for="telefone">Telefone</label>
+          <input type="tel" id="telefone" placeholder="(11) 99999-9999">
+        </div>
+        <div class="form-group">
+          <label for="endereco">Endereço</label>
+          <input type="text" id="endereco" placeholder="Rua, número, bairro">
+        </div>
+        <button type="submit" class="btn-success">Cadastrar</button>
+      </form>
+      <div class="auth-links">
+        Já tem uma conta? <a href="#" onclick="abrirModal('login')">Faça login</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Login -->
+  <div id="modal-login" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Entrar</h2>
+        <button class="close-modal" onclick="fecharModal('login')">&times;</button>
+      </div>
+      <form id="form-login">
+        <div class="form-group">
+          <label for="email-login">E-mail</label>
+          <input type="email" id="email-login" placeholder="seu@email.com" required>
+        </div>
+        <div class="form-group">
+          <label for="senha-login">Senha</label>
+          <input type="password" id="senha-login" placeholder="Sua senha" required>
+        </div>
+        <button type="submit" class="btn-success">Entrar</button>
+      </form>
+      <div class="auth-links">
+        Não tem uma conta? <a href="#" onclick="abrirModal('cadastro')">Cadastre-se</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Nova Doação -->
+  <div id="modal-doacao" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Nova Doação</h2>
+        <button class="close-modal" onclick="fecharModal('doacao')">&times;</button>
+      </div>
+      <form id="form-doacao">
+        <div class="form-group">
+          <label for="alimento">Alimento</label>
+          <input type="text" id="alimento" placeholder="Ex: Arroz, Feijão, Leite" required>
+        </div>
+        <div class="form-group">
+          <label for="quantidade">Quantidade</label>
+          <input type="text" id="quantidade" placeholder="Ex: 2 kg, 5 unidades" required>
+        </div>
+        <div class="form-group">
+          <label for="validade">Validade</label>
+          <input type="date" id="validade" required>
+        </div>
+        <div class="form-group">
+          <label for="categoria">Categoria</label>
+          <select id="categoria" required>
+            <option value="">Selecione uma categoria</option>
+            <option value="grãos">Grãos e Cereais</option>
+            <option value="enlatados">Enlatados e Conservas</option>
+            <option value="laticinios">Laticínios</option>
+            <option value="hortifruti">Hortifruti</option>
+            <option value="outros">Outros</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="descricao">Descrição (opcional)</label>
+          <textarea id="descricao" placeholder="Informações adicionais sobre a doação" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn-success">Cadastrar Doação</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-content">
+      <p>DoaFácil &copy; 2023 - Conectando doadores e necessitados</p>
+      <p>Juntos podemos fazer a diferença!</p>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Inicialização do mapa
+    let mapa = L.map('mapaSimulado').setView([-23.55, -46.63], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
+
+    // Dados simulados
+    let usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+    let doacoes = JSON.parse(localStorage.getItem('doacoes')) || [];
+    let usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado')) || null;
+
+    // Atualizar estatísticas
+    function atualizarEstatisticas() {
+      document.getElementById('total-doacoes').textContent = doacoes.length;
+      document.getElementById('pessoas-beneficiadas').textContent = Math.floor(doacoes.length * 3.5); // Estimativa
+      document.getElementById('alimentos-doados').textContent = doacoes.reduce((total, doacao) => total + 1, 0);
+    }
+
+    // Funções para modais
+    function abrirModal(tipo) {
+      document.getElementById(`modal-${tipo}`).style.display = 'flex';
+    }
+
+    function fecharModal(tipo) {
+      document.getElementById(`modal-${tipo}`).style.display = 'none';
+    }
+
+    // Fechar modal ao clicar fora
+    window.onclick = function(event) {
+      if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+      }
+    }
+
+    // Sistema de cadastro
+    document.getElementById('form-cadastro').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const nome = document.getElementById('nome-completo').value;
+      const email = document.getElementById('email-cadastro').value;
+      const senha = document.getElementById('senha-cadastro').value;
+      const telefone = document.getElementById('telefone').value;
+      const endereco = document.getElementById('endereco').value;
+      
+      // Verificar se o usuário já existe
+      if (usuarios.find(u => u.email === email)) {
+        alert('Este e-mail já está cadastrado!');
+        return;
+      }
+      
+      // Criar novo usuário
+      const novoUsuario = {
+        id: Date.now(),
+        nome,
+        email,
+        senha,
+        telefone,
+        endereco,
+        dataCadastro: new Date().toISOString()
+      };
+      
+      usuarios.push(novoUsuario);
+      localStorage.setItem('usuarios', JSON.stringify(usuarios));
+      
+      // Fazer login automaticamente
+      usuarioLogado = novoUsuario;
+      localStorage.setItem('usuarioLogado', JSON.stringify(usuarioLogado));
+      
+      alert('Cadastro realizado com sucesso!');
+      fecharModal('cadastro');
+      atualizarInterfaceUsuario();
+    });
+
+    // Sistema de login
+    document.getElementById('form-login').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('email-login').value;
+      const senha = document.getElementById('senha-login').value;
+      
+      const usuario = usuarios.find(u => u.email === email && u.senha === senha);
+      
+      if (usuario) {
+        usuarioLogado = usuario;
+        localStorage.setItem('usuarioLogado', JSON.stringify(usuarioLogado));
+        
+        alert('Login realizado com sucesso!');
+        fecharModal('login');
+        atualizarInterfaceUsuario();
+      } else {
+        alert('E-mail ou senha incorretos!');
+      }
+    });
+
+    // Sistema de doações
+    document.getElementById('form-doacao').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      if (!usuarioLogado) {
+        alert('Você precisa estar logado para fazer uma doação!');
+        abrirModal('login');
+        return;
+      }
+      
+      const alimento = document.getElementById('alimento').value;
+      const quantidade = document.getElementById('quantidade').value;
+      const validade = document.getElementById('validade').value;
+      const categoria = document.getElementById('categoria').value;
+      const descricao = document.getElementById('descricao').value;
+      
+      const novaDoacao = {
+        id: Date.now(),
+        usuarioId: usuarioLogado.id,
+        alimento,
+        quantidade,
+        validade,
+        categoria,
+        descricao,
+        dataDoacao: new Date().toISOString(),
+        status: 'disponível'
+      };
+      
+      doacoes.push(novaDoacao);
+      localStorage.setItem('doacoes', JSON.stringify(doacoes));
+      
+      alert('Doação cadastrada com sucesso!');
+      fecharModal('doacao');
+      carregarDoacoes();
+      atualizarEstatisticas();
+      
+      // Limpar formulário
+      document.getElementById('form-doacao').reset();
+    });
+
+    // Carregar doações
+    function carregarDoacoes() {
+      const listaDoacoes = document.getElementById('lista-doacoes-disponiveis');
+      const minhasDoacoes = document.getElementById('minhas-doacoes-lista');
+      
+      listaDoacoes.innerHTML = '';
+      minhasDoacoes.innerHTML = '';
+      
+      // Doações disponíveis
+      const doacoesDisponiveis = doacoes.filter(d => d.status === 'disponível');
+      
+      if (doacoesDisponiveis.length === 0) {
+        listaDoacoes.innerHTML = '<li class="card"><p>Não há doações disponíveis no momento.</p></li>';
+      } else {
+        doacoesDisponiveis.forEach(doacao => {
+          const usuario = usuarios.find(u => u.id === doacao.usuarioId);
+          const li = document.createElement('li');
+          li.className = 'card';
+          li.innerHTML = `
+            <h3>${doacao.alimento}</h3>
+            <p>Quantidade: ${doacao.quantidade}</p>
+            <p>Validade: ${new Date(doacao.validade).toLocaleDateString('pt-BR')}</p>
+            <p>Categoria: ${doacao.categoria}</p>
+            ${doacao.descricao ? `<p>${doacao.descricao}</p>` : ''}
+            <div class="meta">
+              <span>Doador: ${usuario.nome}</span>
+              <span>${new Date(doacao.dataDoacao).toLocaleDateString('pt-BR')}</span>
+            </div>
+            ${usuarioLogado && usuarioLogado.id !== doacao.usuarioId ? 
+              `<div class="doacao-actions">
+                <button class="action-btn" onclick="solicitarDoacao(${doacao.id})" title="Solicitar Doação">
+                  <i class="fas fa-hand-holding-heart"></i>
+                </button>
+              </div>` : ''}
+          `;
+          listaDoacoes.appendChild(li);
+        });
+      }
+      
+      // Minhas doações (se estiver logado)
+      if (usuarioLogado) {
+        const minhasDoacoesLista = doacoes.filter(d => d.usuarioId === usuarioLogado.id);
+        
+        if (minhasDoacoesLista.length === 0) {
+          minhasDoacoes.innerHTML = '<li class="card"><p>Você ainda não fez nenhuma doação.</p></li>';
+        } else {
+          minhasDoacoesLista.forEach(doacao => {
+            const li = document.createElement('li');
+            li.className = 'card';
+            li.innerHTML = `
+              <h3>${doacao.alimento}</h3>
+              <p>Quantidade: ${doacao.quantidade}</p>
+              <p>Validade: ${new Date(doacao.validade).toLocaleDateString('pt-BR')}</p>
+              <p>Status: <span style="color: ${doacao.status === 'disponível' ? 'green' : 'orange'}">${doacao.status}</span></p>
+              <div class="meta">
+                <span>${new Date(doacao.dataDoacao).toLocaleDateString('pt-BR')}</span>
+              </div>
+              <div class="doacao-actions">
+                <button class="action-btn" onclick="editarDoacao(${doacao.id})" title="Editar">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="action-btn" onclick="excluirDoacao(${doacao.id})" title="Excluir">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            `;
+            minhasDoacoes.appendChild(li);
+          });
+        }
+      }
+    }
+
+    // Funções auxiliares
+    function abrirFormularioDoacao() {
+      if (!usuarioLogado) {
+        alert('Você precisa estar logado para fazer uma doação!');
+        abrirModal('login');
+        return;
+      }
+      abrirModal('doacao');
+    }
+
+    function mudarAba(event, abaId) {
+      // Remover classe active de todas as abas
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // Adicionar classe active à aba clicada
+      event.currentTarget.classList.add('active');
+      
+      // Ocultar todos os conteúdos
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      // Mostrar o conteúdo da aba clicada
+      document.getElementById(abaId).classList.add('active');
+    }
+
+    function atualizarInterfaceUsuario() {
+      const headerNav = document.querySelector('nav');
+      
+      if (usuarioLogado) {
+        headerNav.innerHTML = `
+          <div class="user-info">
+            <div class="user-avatar">${usuarioLogado.nome.charAt(0).toUpperCase()}</div>
+            <span>Olá, ${usuarioLogado.nome.split(' ')[0]}</span>
+          </div>
+          <button class="btn-secondary" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> Sair
+          </button>
+        `;
+      } else {
+        headerNav.innerHTML = `
+          <button class="btn-secondary" onclick="abrirModal('login')">
+            <i class="fas fa-sign-in-alt"></i> Entrar
+          </button>
+          <button class="btn-primary" onclick="abrirModal('cadastro')">
+            <i class="fas fa-user-plus"></i> Cadastrar
+          </button>
+        `;
+      }
+      
+      carregarDoacoes();
+    }
+
+    function logout() {
+      usuarioLogado = null;
+      localStorage.removeItem('usuarioLogado');
+      atualizarInterfaceUsuario();
+    }
+
+    function solicitarDoacao(doacaoId) {
+      if (!usuarioLogado) {
+        alert('Você precisa estar logado para solicitar uma doação!');
+        abrirModal('login');
+        return;
+      }
+      
+      const doacao = doacoes.find(d => d.id === doacaoId);
+      if (doacao) {
+        doacao.status = 'solicitada';
+        doacao.solicitanteId = usuarioLogado.id;
+        localStorage.setItem('doacoes', JSON.stringify(doacoes));
+        carregarDoacoes();
+        alert('Doação solicitada com sucesso! Entre em contato com o doador para combinar a retirada.');
+      }
+    }
+
+    function editarDoacao(doacaoId) {
+      alert('Funcionalidade de edição em desenvolvimento!');
+    }
+
+    function excluirDoacao(doacaoId) {
+      if (confirm('Tem certeza que deseja excluir esta doação?')) {
+        doacoes = doacoes.filter(d => d.id !== doacaoId);
+        localStorage.setItem('doacoes', JSON.stringify(doacoes));
+        carregarDoacoes();
+        atualizarEstatisticas();
+      }
+    }
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', function() {
+      atualizarInterfaceUsuario();
+      atualizarEstatisticas();
+      
+      // Adicionar alguns marcadores de exemplo no mapa
+      L.marker([-23.55, -46.64]).addTo(mapa)
+        .bindPopup('Centro - Doações disponíveis')
+        .openPopup();
+      
+      L.marker([-23.56, -46.66]).addTo(mapa)
+        .bindPopup('Zona Sul - Alimentos não perecíveis');
+      
+      L.marker([-23.54, -46.62]).addTo(mapa)
+        .bindPopup('Zona Leste - Hortifruti');
+    });
+    //teste
+  </script>
+</body>
+</html>
